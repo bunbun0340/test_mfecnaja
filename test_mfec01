@@ -1,0 +1,94 @@
+
+import java.io.*;
+import java.math.*;
+import java.sql.Time;
+import java.text.*;
+import java.util.*;
+
+public class test03 {
+
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+
+        double MPH = 36.25;
+        double Money = (290.00 / 8) * 1.5;  //290 เงินต่อวัน 8 Hr / 8 คือ ชม.ทำงาน/วัน 1.5 คือ ค่า OT ปกติ
+        Time TimeAttendance = new Time(8, 0, 0);
+        Time Latetime = new Time(8, 5, 0);
+        Time timeOut = new Time(17, 0, 0);
+        Time OTtimeOut = new Time(17, 30, 0);
+
+        FileInputStream infile = new FileInputStream("D:\\pro2559\\ข้อมูล\\1.working_time.log");
+        InputStreamReader in = new InputStreamReader(infile, "TIS-620");
+
+        try {
+
+            BufferedReader T = new BufferedReader(in);
+
+            String line;
+            int O = 1;
+            while ((line = T.readLine()) != null) {
+                String[] L = line.split("\\|");
+                if (L.length == 5) {
+                    System.out.println("ลำดับ : " + O++);
+                    System.out.println("ชื่อ : " + L[0]);
+                    try {
+
+                        DateFormat td = new SimpleDateFormat("HH:mm");
+                        DateFormat td2 = new SimpleDateFormat("dd/MM/yyyy");
+
+                        Date time;
+                        Date time2;
+                        Date date3 = td2.parse(L[1]);
+                        Date date4 = td2.parse(L[3]);
+                        String datein = td2.format(date3);
+                        String datein2 = td2.format(date4);
+                        System.out.println("วันที่เข้าทำงาน : " + datein);
+                        System.out.println("วันที่เข้าทำงาน : " + datein2);
+
+                        time = td.parse(L[2]);
+                        time2 = td.parse(L[4]);
+                        String timein = td.format(time);
+                        String timeout = td.format(time2);;
+                        System.out.println("เวลาเข้างาน " + timein + " นาที");
+                        System.out.println("เวลาออกงาน " + timeout + " นาที");
+
+                        double M = test_naja(time, time2);
+                        System.out.println("ค่าแรง/วัน : " + M + " บาท");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("<<<************************************>>>");
+
+                }
+            }
+            T.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static double test_naja(Date datein, Date dateout) {
+        double sam = 0.00;
+        double milliTime = dateout.getTime() - datein.getTime();
+
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        nf.setMaximumFractionDigits(0);
+        nf.setRoundingMode(RoundingMode.HALF_UP);
+        int Hours = Integer.parseInt(nf.format(milliTime / (1000 * 60 * 60)));
+
+        sam = sam + (Hours / 24) * 290.00;
+        if (Hours >= 8) {
+            Hours = (Hours - 1) % 24;
+        }
+        if (Hours <= 8) {
+            sam = Hours * 36.25;
+        } else {
+            sam = Hours * 36.25;
+        }
+        System.out.println("ชั่วโมงทำงาน : " + Hours + " ชั่วโมง");
+        return sam;
+    }
+
+}
